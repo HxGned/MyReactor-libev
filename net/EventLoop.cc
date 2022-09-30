@@ -2,14 +2,14 @@
 #include "Log.hh"
 
 using namespace net;
+using namespace base;
 
-// TODO: why this can't be a static member function
-// if we put it here, what is its scope
-static void asyncHandler(EV_P_ struct ev_async*w, int revents)
+void EventLoop::asyncHandler(EV_P_ struct ev_async*w, int revents)
 {
     EventLoop* self = (EventLoop*)w->data;
 
     LOG_INFO("asyncHandler begin from %p", self);
+    self->doPendingFunctors();
     LOG_INFO("asyncHandler end");
 }
 
@@ -19,7 +19,7 @@ EventLoop::EventLoop() : _loop(NULL), _async(NULL)
 
     this->_async = new struct ev_async;
     _async->data = (void *)this;
-    ev_async_init(this->_async, &asyncHandler);
+    ev_async_init(this->_async, &EventLoop::asyncHandler);
     ev_async_start(this->_loop, this->_async);
 
     LOG_INFO("EventLoop object created! addr: %p", this);
@@ -44,7 +44,25 @@ void EventLoop::stop()
     ev_break(_loop, 0);
 }
 
+void EventLoop::QueueInLoopThread(const Functor& func)
+{
+    this->_pendingFunctors.push_back(func);
+    callAsync();
+}
+
 void EventLoop::callAsync(void)
 {
     ev_async_send(this->_loop, this->_async);
+}
+
+void EventLoop::doPendingFunctors()
+{
+    MutexGuard guard(&_mutex);
+
+    LOG_DEBUG("doPendingFunctors begin");
+    for (auto it = _pendingFunctors.begin(); it != _pendingFunctors.end(); ) {
+        (*it)();
+        it = _pendingFunctors.erase(it);
+    }
+    LOG_DEBUG("doPendingFunctors end");
 }

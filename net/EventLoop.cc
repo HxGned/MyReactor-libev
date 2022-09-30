@@ -44,7 +44,7 @@ void EventLoop::stop()
     ev_break(_loop, 0);
 }
 
-void EventLoop::QueueInLoopThread(const Functor& func)
+void EventLoop::queueInLoopThread(const Functor& func)
 {
     this->_pendingFunctors.push_back(func);
     callAsync();
@@ -65,4 +65,9 @@ void EventLoop::doPendingFunctors()
         it = _pendingFunctors.erase(it);
     }
     LOG_DEBUG("doPendingFunctors end");
+}
+
+struct ev_loop* EventLoop::getLoop()
+{
+    return this->_loop;
 }

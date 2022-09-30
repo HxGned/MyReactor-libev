@@ -19,7 +19,8 @@ public:
     void loop();
     void stop();
 
-    void QueueInLoopThread(const Functor& func);
+    void queueInLoopThread(const Functor& func);
+    struct ev_loop* getLoop();
 private:
     void callAsync();
     void doPendingFunctors();

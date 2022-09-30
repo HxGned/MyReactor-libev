@@ -1,6 +1,8 @@
 #include "EventLoop.hh"
 #include "Log.hh"
 
+#include <assert.h>
+
 using namespace net;
 using namespace base;
 
@@ -13,7 +15,7 @@ void EventLoop::asyncHandler(EV_P_ struct ev_async*w, int revents)
     LOG_INFO("asyncHandler end");
 }
 
-EventLoop::EventLoop() : _loop(NULL), _async(NULL)
+EventLoop::EventLoop() : _loop(NULL), _async(NULL), _tid(CurrentThread::GetThreadId())
 {
     this->_loop = EV_DEFAULT;
 
@@ -48,6 +50,26 @@ void EventLoop::queueInLoopThread(const Functor& func)
 {
     this->_pendingFunctors.push_back(func);
     callAsync();
+}
+
+void EventLoop::runInLoopThread(const Functor& func)
+{
+    if (inLoopThread()) {
+        func();
+    } else {
+        MutexGuard guard(&_mutex);
+        queueInLoopThread(func);
+    }
+}
+
+bool EventLoop::inLoopThread()
+{
+    return CurrentThread::GetThreadId() == _tid;
+}
+
+void EventLoop::assertInLoopThread()
+{
+    assert(CurrentThread::GetThreadId() == _tid);
 }
 
 void EventLoop::callAsync(void)

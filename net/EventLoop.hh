@@ -3,6 +3,7 @@
 
 #include "Callbacks.hh"
 #include "Mutex.hh"
+#include "CurrentThread.hh"
 
 #include <vector>
 #include <ev.h>
@@ -19,7 +20,10 @@ public:
     void loop();
     void stop();
 
+    void assertInLoopThread();
+    bool inLoopThread();
     void queueInLoopThread(const Functor& func);
+    void runInLoopThread(const Functor& func);
     struct ev_loop* getLoop();
 private:
     void callAsync();
@@ -29,6 +33,7 @@ public:
 private:
     struct ev_loop* _loop;
     struct ev_async* _async;
+    pid_t _tid;
 
     std::vector<Functor> _pendingFunctors;
     Mutex _mutex;

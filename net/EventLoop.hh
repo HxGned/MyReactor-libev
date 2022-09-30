@@ -24,14 +24,14 @@ public:
     bool inLoopThread();
     void queueInLoopThread(const Functor& func);
     void runInLoopThread(const Functor& func);
-    struct ev_loop* getLoop();
+    struct ev_loop* getEvLoop();
 private:
     void callAsync();
     void doPendingFunctors();
 public:
     static void asyncHandler(EV_P_ struct ev_async* w, int revents);
 private:
-    struct ev_loop* _loop;
+    struct ev_loop* _evLoop;
     struct ev_async* _async;
     pid_t _tid;
 

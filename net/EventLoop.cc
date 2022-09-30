@@ -15,14 +15,14 @@ void EventLoop::asyncHandler(EV_P_ struct ev_async*w, int revents)
     LOG_INFO("asyncHandler end");
 }
 
-EventLoop::EventLoop() : _loop(NULL), _async(NULL), _tid(CurrentThread::GetThreadId())
+EventLoop::EventLoop() : _evLoop(NULL), _async(NULL), _tid(CurrentThread::GetThreadId())
 {
-    this->_loop = EV_DEFAULT;
+    this->_evLoop = EV_DEFAULT;
 
     this->_async = new struct ev_async;
     _async->data = (void *)this;
     ev_async_init(this->_async, &EventLoop::asyncHandler);
-    ev_async_start(this->_loop, this->_async);
+    ev_async_start(this->_evLoop, this->_async);
 
     LOG_INFO("EventLoop object created! addr: %p", this);
 }
@@ -30,20 +30,20 @@ EventLoop::EventLoop() : _loop(NULL), _async(NULL), _tid(CurrentThread::GetThrea
 EventLoop::~EventLoop()
 {
     stop();
-    ev_async_stop(this->_loop, this->_async);
+    ev_async_stop(this->_evLoop, this->_async);
     delete this->_async;
-    ev_loop_destroy(this->_loop);
+    ev_loop_destroy(this->_evLoop);
     LOG_INFO("EventLoop object destructed! addr: %p", this);
 }
 
 void EventLoop::loop()
 {
-    ev_loop(_loop, 0);
+    ev_loop(_evLoop, 0);
 }
 
 void EventLoop::stop()
 {
-    ev_break(_loop, 0);
+    ev_break(_evLoop, 0);
 }
 
 void EventLoop::queueInLoopThread(const Functor& func)
@@ -74,7 +74,7 @@ void EventLoop::assertInLoopThread()
 
 void EventLoop::callAsync(void)
 {
-    ev_async_send(this->_loop, this->_async);
+    ev_async_send(this->_evLoop, this->_async);
 }
 
 void EventLoop::doPendingFunctors()
@@ -89,7 +89,7 @@ void EventLoop::doPendingFunctors()
     LOG_DEBUG("doPendingFunctors end");
 }
 
-struct ev_loop* EventLoop::getLoop()
+struct ev_loop* EventLoop::getEvLoop()
 {
-    return this->_loop;
+    return this->_evLoop;
 }

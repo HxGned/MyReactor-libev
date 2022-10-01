@@ -24,7 +24,7 @@ Channel::Channel(EventLoop* loop, int fd) : _loop(loop), _fd(fd), _index(kInitia
     _watcher = new struct ev_io;
     ev_io_init(this->_watcher, &(Channel::ChannelWatcherCallback), this->_fd, EV_NONE);
     this->_watcher->data = (void*)this;
-    ev_io_start(this->_loop->getLoop(), this->_watcher);
+    ev_io_start(this->_loop->getEvLoop(), this->_watcher);
 }
 
 Channel::~Channel()
@@ -32,7 +32,7 @@ Channel::~Channel()
     LOG_INFO("Channel destruct");
 
     // deallocate watcher space
-    ev_io_stop(this->_loop->getLoop(), this->_watcher);
+    ev_io_stop(this->_loop->getEvLoop(), this->_watcher);
     delete this->_watcher;
 }
 
@@ -174,7 +174,7 @@ void Channel::Update()
 void Channel::Remove()
 {
     // _loop->RemoveChannel(this);
-    ev_io_stop(this->_loop->getLoop(), this->_watcher);
+    ev_io_stop(this->_loop->getEvLoop(), this->_watcher);
 }
 
 string Channel::Events2String(int events)

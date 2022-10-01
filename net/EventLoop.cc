@@ -1,5 +1,6 @@
 #include "EventLoop.hh"
 #include "Log.hh"
+#include "Channel.hh"
 
 #include <assert.h>
 
@@ -92,4 +93,16 @@ void EventLoop::doPendingFunctors()
 struct ev_loop* EventLoop::getEvLoop()
 {
     return this->_evLoop;
+}
+
+void EventLoop::updateChannel(Channel *c)
+{
+    ev_io_stop(this->_evLoop, c->_watcher);
+    ev_io_set(c->_watcher, c->_fd, c->_events);
+    ev_io_start(this->_evLoop, c->_watcher);
+}
+
+void EventLoop::removeChannel(Channel *c)
+{
+    ev_io_stop(this->_evLoop, c->_watcher);
 }

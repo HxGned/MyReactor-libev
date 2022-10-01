@@ -25,6 +25,7 @@ class EventLoop;
 
 // one socket fd regist to one eventloop
 class Channel : public NonCopyable {
+    friend class EventLoop;
 public:
     Channel(EventLoop* loop, int fd);
     ~Channel();
@@ -43,6 +44,8 @@ public:
     int GetFd();
     // 返回channel对应的loop
     EventLoop* GetEventLoop();
+    // 返回watcher的指针
+    struct ev_io* GetWatcher();
 
     // events && revents
     int GetEvents();

@@ -12,6 +12,8 @@ using base::Mutex;
 
 namespace net {
 
+class Channel;
+
 class EventLoop {
 public:
     EventLoop();
@@ -25,6 +27,9 @@ public:
     void queueInLoopThread(const Functor& func);
     void runInLoopThread(const Functor& func);
     struct ev_loop* getEvLoop();
+
+    void updateChannel(Channel *c);
+    void removeChannel(Channel *c);
 private:
     void callAsync();
     void doPendingFunctors();

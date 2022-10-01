@@ -168,16 +168,13 @@ void Channel::HandleEvent(Timestamp timestamp)
 void Channel::Update()
 {
     // LOG_DEBUG("fd: [%d], events: [%d]", this->_fd, this->_events);
-    // _loop->UpdateChannel(this);
-    ev_io_stop(this->_loop->getEvLoop(), this->_watcher);
-    ev_io_set(this->_watcher, this->_fd, _events);
-    ev_io_start(this->_loop->getEvLoop(), this->_watcher);
+    _loop->updateChannel(this);
 }
 
 void Channel::Remove()
 {
-    // _loop->RemoveChannel(this);
-    ev_io_stop(this->_loop->getEvLoop(), this->_watcher);
+    _loop->removeChannel(this);
+    // ev_io_stop(this->_loop->getEvLoop(), this->_watcher);
 }
 
 string Channel::Events2String(int events)
@@ -220,4 +217,9 @@ void Channel::ChannelWatcherCallback(EV_P_ ev_io* w, int revents)
     // call member function to handle Event
     self->HandleEvent(now);
     LOG_DEBUG("ChannelWatcherCallback end!");
+}
+
+struct ev_io* Channel::GetWatcher()
+{
+    return this->_watcher;
 }

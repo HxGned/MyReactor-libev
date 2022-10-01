@@ -12,9 +12,9 @@
 
 ## 编译指导
 
-* 先需要安装jsoncpp
+* 先需要安装libev
 ```shell
-sudo apt install libjsoncpp-dev
+sudo apt install libev-dev
 ```
 
 * 开始编译

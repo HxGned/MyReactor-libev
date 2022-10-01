@@ -97,7 +97,7 @@ struct ev_loop* EventLoop::getEvLoop()
 
 void EventLoop::updateChannel(Channel *c)
 {
-    ev_io_stop(this->_evLoop, c->_watcher);
+    ev_io_stop(this->_evLoop, c->_watcher); // note: ev_io_set only work when watcher is inactive, so stop it first
     ev_io_set(c->_watcher, c->_fd, c->_events);
     ev_io_start(this->_evLoop, c->_watcher);
 }

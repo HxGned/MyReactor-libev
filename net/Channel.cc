@@ -167,8 +167,11 @@ void Channel::HandleEvent(Timestamp timestamp)
 
 void Channel::Update()
 {
+    // LOG_DEBUG("fd: [%d], events: [%d]", this->_fd, this->_events);
     // _loop->UpdateChannel(this);
+    ev_io_stop(this->_loop->getEvLoop(), this->_watcher);
     ev_io_set(this->_watcher, this->_fd, _events);
+    ev_io_start(this->_loop->getEvLoop(), this->_watcher);
 }
 
 void Channel::Remove()
